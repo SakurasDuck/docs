@@ -33,11 +33,11 @@ newChild出栈做了什么：
 _ComponentElement的继承关系:_  
 ![image9](assets/image9.png)  
 
-#### 1.首先看组合型Element定义的方法
+### 1.观察所定义的接口与重写的方法
 
 ![image10](assets/image10.png)  
 
-#### 2. 现在假设某个继承了CompoentElement的Element被父级调用mount方法,然后按照流程走一遍
+### 2. 现在假设某个继承了CompoentElement的Element被父级调用mount方法,然后按照流程走一遍
 
 1. 父级element调用当前的mount()，参数parent为父级element：  
  ![image11](assets/image11.png)  
@@ -52,7 +52,7 @@ _ComponentElement的继承关系:_
 ![image14](assets/image14.png)  
 5. 之后就到了Element.updateChild，然后Element.inflateWidget再到调用childElement的mount的标准流程  
 
-#### 3. 平时常用StatelessWidget创建的StatelessElement与StatefulWidget创建的StatefulElement都是继承与ComponentWidget，它们又分别在挂载时做了哪些操作呢？
+### 3. 平时常用StatelessWidget创建的StatelessElement与StatefulWidget创建的StatefulElement都是继承与ComponentWidget，它们又分别在挂载时做了哪些操作呢？
 
 1. StatelessElement:  
 ![image15](assets/image15.png)  
@@ -80,4 +80,34 @@ _ComponentElement的继承关系:_
 实在ELement.inflateWidget()时就调用了Widget.createElement()  
 ![image21](assets/image21.png)  
 StatefulWidget.createElement()返回的就是StatefulElement实例,并将widget本身当作参数传给Element.  
-接着看构造函数.除了createState外,还将widget通过super方式传给Element持有,将当前Element传给State持有,将widget传给state._widget持有
+接着看构造函数.除了createState外,还将widget通过super方式传给Element持有,将当前Element传给State持有,将widget传给state._widget持有  
+
+3. InheritedElement,ParentDataElement:
+
+    这两个并没有在挂载时做特殊处理,继承了ComponentElement的挂载流程,从重写的方法可以看出来  
+    1. ProxyElement:  
+    ![image22](assets/image22.png)  
+    与挂载流程相关的只有build,也只是返回了child
+    2. ParentDataElement:  
+    ![image23](assets/image23.png)  
+    3. InheritedElement:  
+    ![image24](assets/image24.png)  
+
+## RenderObjectElement的挂载  
+
+_RenderObjectElement的继承关系:_  
+![image25](assets/image25.png)  
+
+### 1. RenderObjectElement结构
+
+与挂载相关的实现已经标注  
+![image26](assets/image26.png)  
+
+### 2. 现在假设某个继承了RenderObjectElement的Element被父级调用mount方法,带入走一遍挂载  
+
+1. 由父级调用mount(),进入此方法  
+![image27](assets/image27.png)  
+第2行,通用super.mount()不在赘述  
+第7行,调用RenderObjectWidget的createRenderObject()方法,返回RenderObject实例,并将其赋值给_renderObject.  
+![image28](assets/image28.png)  
+第16行,调用attachRenderObject()方法,将_renderObject挂载到父级的_renderObject上
