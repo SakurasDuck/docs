@@ -1,6 +1,6 @@
-# ElementTree的挂载的形成
+# 从runApp()开始看ElementTree的挂载
 
-## RootElement的挂载-->树的形成
+## RootElement的挂载
 
 1. 从runApp() 中开始组装:  
 ![image1](assets/image1.png)
@@ -105,9 +105,26 @@ _RenderObjectElement的继承关系:_
 
 ### 2. 现在假设某个继承了RenderObjectElement的Element被父级调用mount方法,带入走一遍挂载  
 
-1. 由父级调用mount(),进入此方法  
+由父级调用mount(),进入此方法  
 ![image27](assets/image27.png)  
 第2行,通用super.mount()不在赘述  
 第7行,调用RenderObjectWidget的createRenderObject()方法,返回RenderObject实例,并将其赋值给_renderObject.  
 ![image28](assets/image28.png)  
-第16行,调用attachRenderObject()方法,将_renderObject挂载到父级的_renderObject上
+第16行,调用attachRenderObject()方法,将_renderObject挂载到父级的_renderObject上(具体怎么这里不深究)  
+到这里RenderObjectElement的挂载就结束了,对于LeafRenderObjectWidget没有子级Element确实完成了,但是例如Padding,Opacity等SingleChildRenderWidget和Column,Stack等MultiChildRenderObjectWidget的Element都是继承于RenderObjectElement,那么他们的child,children是怎么挂载的呢?  
+
+### 3. SingleChildRenderObjectElement的挂载
+
+![image29](assets/image29.png)  
+在mount()中通过调用updateChild(),将_child与SingleChildRenderObjectWidget.child一并传入.这样就将child加入挂载流程.  
+
+### 4. MultiChildRenderObjectElement的挂载
+
+![image30](assets/image30.png)  
+首先MultiChildRenderObjectElement自己维护了一个children的列表,在mount()中通过循环调用Element.inflateWidget(),将MultiChildRenderObjectWidget.children中的每一个child当作参数传进去,然后将childElement加入到自己的children列表中.
+此外之前一直传空的newSolt现在有值了,对应当前child在children列表中的索引.在child.mount()时同时保存自己在children列表中的索引.  
+
+## 总结
+
+到现在为止,几种类型的element挂载时的操作就已经介绍完了,通过不同的child element类型,执行不同的挂载方式,最终形成了一个element树.赋值为WidgetBinding._rootElement等待使用  
+![image31](assets/image31.png)  
